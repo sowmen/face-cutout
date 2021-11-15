@@ -75,12 +75,19 @@ class FaceDataset(Dataset):
 
             # Load image and mask
             img_path = os.path.join(ROOT_DIR, dataset, "face_crops", video, file)
-            if(os.path.exists):
+            ori_path = os.path.join(ROOT_DIR, dataset, "face_crops", original, file)
+            if(os.path.exists(img_path)):
                 image = cv2.imread(img_path, cv2.IMREAD_COLOR)
                 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             else:
                 index = random.randint(0, len(self.data) - 1)
                 continue
+
+            if(os.path.exists(ori_path)):
+                ori_image = cv2.imread(ori_path, cv2.IMREAD_COLOR)
+                ori_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            else:
+                ori_image = None
             
             # Precalculate and save diff masks for faster loading
             if label == 1:
@@ -88,7 +95,7 @@ class FaceDataset(Dataset):
                 if os.path.exists(mask_path):
                     mask_image = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
                 else:
-                    d, a = compare_ssim(original, image, multichannel=True, full=True)
+                    d, a = compare_ssim(ori_image, image, multichannel=True, full=True)
                     a = 1 - a
                     diff = (a * 255).astype(np.uint8)
                     mask_image = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
@@ -97,7 +104,7 @@ class FaceDataset(Dataset):
 
 
             # Applying face-cutout augmentations
-            if (self.mode == "train"and self.cutout):
+            if (self.mode == "train" and self.cutout):
                 landmark_path = os.path.join(ROOT_DIR, dataset, "original_landmarks", original, file[:-4] + ".npy")
                 if os.path.exists(landmark_path):
                     landmarks = np.load(landmark_path)
@@ -106,13 +113,13 @@ class FaceDataset(Dataset):
 
                 try:
                     # Select sensory or convex-hull randomly
-                    image = face_cutout(image, original, landmarks, mask_image, cutout_fill=self.cutout_fill)
+                    image = face_cutout(image, ori_image, landmarks, mask_image, cutout_fill=self.cutout_fill)
+                    
+                    # Uncomment to use only sensory cutout
+                    # image = sensory_cutout(image, ori_image, landmarks, mask_image, cutout_fill=self.cutout_fill)
 
-                    # Only sensory cutout
-                    # image = sensory_cutout(image, original, landmarks, mask_image, cutout_fill=self.cutout_fill)
-
-                    # Only convex-hull cutout
-                    # image = convex_hull_cutout(image, original, mask_image)
+                    # Uncomments to use only convex-hull cutout
+                    # image = convex_hull_cutout(image, ori_image, mask_image)
                 except Exception as e:
                     print(f"Augmentation Error {img_path}", e)
 
@@ -121,6 +128,7 @@ class FaceDataset(Dataset):
 
             # Use builtin transforms passed in
             if self.transforms is not None:
+                print(type(image))
                 data = self.transforms(image=image)
                 image = data["image"]
 
@@ -147,6 +155,7 @@ class FaceDataset(Dataset):
         real = rows[rows["label"] == 0]
         fakes = rows[rows["label"] == 1]
         num_real = real["video"].count()
-        if self.mode == "train":
+        num_fakes = fakes["video"].count()
+        if self.mode == "train" and num_real > num_fakes:
             fakes = fakes.sample(n=int(num_real), replace=True, random_state=seed)
         return pd.concat([real, fakes])

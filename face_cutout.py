@@ -6,7 +6,7 @@ from PIL import Image
 
 from scipy.ndimage import binary_erosion, binary_dilation
 import skimage
-from skimage import measure
+from skimage import measure, draw
 
 import dlib
 from facenet_pytorch.models.mtcnn import MTCNN
@@ -30,6 +30,8 @@ def face_cutout(
         image = sensory_cutout(image, original, landmarks, mask, probability, cutout_fill, threshold)
     elif choice == 1:
         image = convex_hull_cutout(image, original,mask, probability, cutout_fill, threshold)
+
+    return image
 
 
 def sensory_cutout(
@@ -198,7 +200,7 @@ def convex_hull_cutout(
             vertices = outline[i : i + points]
             if len(vertices) < points:
                 break
-            Y, X = skimage.draw.polygon(vertices[:, 1], vertices[:, 0])
+            Y, X = draw.polygon(vertices[:, 1], vertices[:, 0])
             polygon = np.zeros(image.shape[:2], dtype=np.uint8)
             polygon[Y, X] = 1
             if mask is not None:
@@ -215,7 +217,7 @@ def convex_hull_cutout(
     elif choice == 1:
         for i in range(15, 8, -1):
             vertices = outline[np.random.randint(outline.shape[0], size=i), :]
-            Y, X = skimage.draw.polygon(vertices[:, 1], vertices[:, 0])
+            Y, X = draw.polygon(vertices[:, 1], vertices[:, 0])
             polygon = np.zeros(image.shape[:2], dtype=np.uint8)
             polygon[Y, X] = 1
             if mask is not None:
@@ -226,7 +228,7 @@ def convex_hull_cutout(
                     continue
             break
     elif choice == 2:
-        Y, X = skimage.draw.polygon(outline[:, 1], outline[:, 0])
+        Y, X = draw.polygon(outline[:, 1], outline[:, 0])
         polygon = np.zeros(image.shape[:2], dtype=np.uint8)
         polygon[Y, X] = 1
         polygon = _centroid_cut(polygon, mask, threshold)
