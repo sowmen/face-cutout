@@ -3,6 +3,7 @@ test_samples/mini_val
 test_samples/val_images
 .vscode/
 weights/
+*.zip
 
 
 
