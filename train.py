@@ -48,9 +48,9 @@ from utils import EarlyStopping, AverageMeter, get_dataframe
 OUTPUT_DIR = "weights"
 device = "cuda"
 config_defaults = {
-    "epochs": 1,
-    "train_batch_size": 41,
-    "valid_batch_size": 41,
+    "epochs": 5,
+    "train_batch_size": 8,
+    "valid_batch_size": 8,
     "optimizer": "radam",
     "learning_rate": 1e-3,
     "weight_decay": 0.0005,
@@ -62,7 +62,7 @@ config_defaults = {
 
 VAL_FOLD = 5
 
-def train(name, run, df):
+def train(name, df):
 
     dt_string = datetime.now().strftime("%d|%m_%H|%M|%S")
 
@@ -76,11 +76,11 @@ def train(name, run, df):
 
 
     model = timm.create_model("tf_efficientnet_b4_ns", pretrained=False, num_classes=1)
-    model.load_state_dict(
-        torch.load(
-            "weights/Combined_hardcore_min_loss,tf_efficientnet_b4_ns_fold_5_run_1.h5"
-        )
-    )
+    # model.load_state_dict(
+    #     torch.load(
+    #         "weights/Combined_hardcore_min_loss,tf_efficientnet_b4_ns_fold_5_run_1.h5"
+    #     )
+    # )
     model.to(device)
     # model = DataParallel(model).to(device)
 
@@ -254,15 +254,20 @@ def valid_epoch(model, val_data_loader, criterion, epoch):
 
     with torch.no_grad():
         for batch in tqdm(val_data_loader):
-            # batch_image_names = batch['image_name']
             batch_images = batch["image"].to(device).float()
             batch_labels = batch["label"].to(device).float()
-            batch_names = batch["image_name"]
 
             out = model(batch_images)
             loss = criterion(out, batch_labels.view(-1, 1).type_as(out))
 
             valid_loss.update(loss.item(), val_data_loader.batch_size)
+
+            batch_targets = (batch_labels.view(-1, 1).cpu() >= 0.5) * 1
+            batch_preds = torch.sigmoid(out).detach().cpu()
+            
+
+            targets.append(batch_targets)
+            correct_predictions.append(batch_preds)
             
 
     # Logging
@@ -359,13 +364,12 @@ def create_val_transforms(size=224):
 
 
 if __name__ == "__main__":
-    run = 1
     model_name = "tf_efficientnet_b4_ns"
 
-    dfdc_df = get_dataframe("dfdc.csv", folds=10)
-    ffpp_df = get_dataframe("ffpp.csv", folds=10)
-    celebdf_df = get_dataframe("celebdf.csv", folds=10)
+    dfdc_df = get_dataframe("train_data/dfdc.csv", folds=10)
+    ffpp_df = get_dataframe("train_data/ffpp.csv", folds=10)
+    celebdf_df = get_dataframe("train_data/celebdf.csv", folds=10)
 
     final_df = pd.concat([dfdc_df, ffpp_df, celebdf_df])
 
-    train(name="Combined_hardcore" + model_name, df=final_df)
+    train(name="Combined_hardcore_" + model_name, df=final_df)

@@ -29,7 +29,7 @@ def face_cutout(
     if choice == 0:
         image = sensory_cutout(image, original, landmarks, mask, probability, cutout_fill, threshold)
     elif choice == 1:
-        image = convex_hull_cutout(image, original,mask, probability, cutout_fill, threshold)
+        image = convex_hull_cutout(image, original, mask, probability, cutout_fill, threshold)
 
     return image
 
@@ -153,11 +153,11 @@ def convex_hull_cutout(
     image,
     original=None,
     mask=None,
-    detector=dlib_detector,
-    predictor=dlib_predictor,
     probability=0.5,
     cutout_fill=0,
     threshold=0.3,
+    detector=dlib_detector,
+    predictor=dlib_predictor,
 ):
     """[Face Cutout using face outline points. Uses 3 methods
         1. Selects only a fixed number of consecutive points and creates the polygon
@@ -269,7 +269,7 @@ def _centroid_cut(polygon, mask, threshold=0.3):
             if (cut_ones / mask_ones) > threshold:
                 continue
         if flag == 0:
-            return parts[random.randint(0, 4)]
+            return parts[random.randint(0, 3)]
         else:
             return parts[i]
     return None
