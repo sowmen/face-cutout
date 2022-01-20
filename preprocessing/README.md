@@ -1,6 +1,6 @@
 ## Data Preprocessing
 
-The preprocessing steps are same for all datasets. The files provided cannot be used as is. I have only provided them as I have used. For individual purposes fix teh data paths and output directories.
+The preprocessing steps are same for all datasets. The files provided cannot be used as is. I have only provided them as I have used. For individual purposes fix the data paths and output directories.
 
 1. `detect_original_faces.py` -> Detect original faces from only the original videos. This will save `.json` containing bounding box locations for the faces in each frame of aeach video.
 2. `extract_crops.py` -> Extract the face regions using the bounding boxes and save them as `.png`.
