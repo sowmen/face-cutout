@@ -1,6 +1,6 @@
 # Face-Cutout
 Code for the paper *Towards Solving the DeepFake Problem: An Analysis on Improving DeepFake Detection Using Dynamic Face Augmentation* **Sowmen Das**, **Selim Seferbekov**, **Arup Datta**, **Md. Saiful Islam**, **Md. Ruhul Amin**; <span style="color:#2596be
-">Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) Workshops</span>, 2021, pp. 3776-3785. [(*url*)](https://openaccess.thecvf.com/content/ICCV2021W/RPRMI/html/Das_Towards_Solving_the_DeepFake_Problem_An_Analysis_on_Improving_DeepFake_ICCVW_2021_paper.html)
+">Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) Workshops</span>, 2021, pp. 3776-3785. [[*paper*]](https://openaccess.thecvf.com/content/ICCV2021W/RPRMI/html/Das_Towards_Solving_the_DeepFake_Problem_An_Analysis_on_Improving_DeepFake_ICCVW_2021_paper.html) [[*presentation*]](https://youtu.be/RuXKBWanx40?t=6545)
 
 <p align="center">
   <img src="https://github.com/sowmen/face-cutout/blob/main/test_samples/intro.png">
