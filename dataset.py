@@ -85,7 +85,7 @@ class FaceDataset(Dataset):
 
             if(os.path.exists(ori_path)):
                 ori_image = cv2.imread(ori_path, cv2.IMREAD_COLOR)
-                ori_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                ori_image = cv2.cvtColor(ori_image, cv2.COLOR_BGR2RGB)
             else:
                 ori_image = None
             
